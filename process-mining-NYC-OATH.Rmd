@@ -1,0 +1,49 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(bupaR)
+```
+
+
+https://data.cityofnewyork.us/Education/Observations-And-Statuses-For-Inspections/6246-94tp
+
+https://data.cityofnewyork.us/City-Government/OATH-Trials-Division-Case-Status/y3hw-z6bm
+
+
+```{r}
+oath_trials <- read_csv("data/OATH_Hearings_Division_Case_Status.csv")
+school_inspections <- read_csv("data/Observations_And_Statuses_For_Inspections.csv")
+```
+
+```{r}
+school_inspections <- school_inspections %>% 
+  rename("school_code" = `School Code`, 
+         "inspection_stage" = `Inspection Stage Description`,
+         "inspection_cat" = `Inspection Category`,
+         "timestamp" = `Inspection Date`,
+         "observation" = `Observation Description`)
+```
+
+
+```{r}
+school_inspections %>% 
+  distinct(school_code) %>% 
+  nrow()
+```
+
+# Create an Event Log From Status Dataset
+
+The 
+We don't have an activity_instance_id in the original data set. 
+```{r}
+school_inspection_eventlog <- school_inspections %>% 
+  eventlog(case_id = "school_code",
+           activity_id = "inspection_stage",
+           activity_instance_id = NULL,
+           timestamp = "timestamp")
+```
+
